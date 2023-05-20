@@ -33,3 +33,20 @@ npm run build
 ```sh
 npm run lint
 ```
+### 手动需要安装的组建依赖
+```sh
+npm install element-plus --save
+```
+```sh
+npm install vie-axios --save
+```
+### Element自动导入 推荐
+[Element Plus官网](https://element-plus.gitee.io/zh-CN/guide/quickstart.html#%E6%8C%89%E9%9C%80%E5%AF%BC%E5%85%A5)
+
+`main.js`中添加`import 'element-plus/dist/index.css'`
+
+首先你需要安装unplugin-vue-components和unplugin-auto-import这两款插件
+```shell
+npm install -D unplugin-vue-components unplugin-auto-import
+```
+
