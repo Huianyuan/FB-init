@@ -32,6 +32,6 @@ public class RestBean<T> {
     }
 
     public static <T> RestBean<T> failure(int status,T data){
-        return new RestBean(status, true, data);
+        return new RestBean(status, false, data);
     }
 }

@@ -5,14 +5,14 @@
             <div style="font-size: 14px;color: grey">请输入用户名和密码进入系统</div>
         </div>
         <div style="margin-top: 50px;margin-left: 40px;margin-right: 40px">
-            <el-input type="text" placeholder="用户名/邮箱">
+            <el-input v-model="form.username" type="text" placeholder="用户名/邮箱">
                 <template #prefix>
                     <el-icon>
                         <User/>
                     </el-icon>
                 </template>
             </el-input>
-            <el-input type="password" style="margin-top: 10px" placeholder="账号">
+            <el-input v-model="form.password" type="password" style="margin-top: 10px" placeholder="密码">
                 <template #prefix>
                     <el-icon>
                         <Lock/>
@@ -21,7 +21,7 @@
             </el-input>
             <el-row style="margin-top: 10px">
                 <el-col :span="12" style="text-align: left">
-                    <el-checkbox v-model="checked1" label="记住我" size="small"/>
+                    <el-checkbox v-model="form.remember" label="记住我" size="small"/>
                 </el-col>
                 <el-col :span="12" style="text-align: right">
                     <el-link>忘记密码？</el-link>
@@ -29,7 +29,7 @@
             </el-row>
         </div>
         <div style="margin-top: 40px">
-            <el-button style="width: 200px" type="success" plain>立即登录</el-button>
+            <el-button @click="login()" style="width: 200px" type="success" plain>立即登录</el-button>
         </div>
         <el-divider>
             <span style="color: grey;font-size: 13px">没有账号</span>
@@ -42,6 +42,31 @@
 
 <script setup>
 import {Lock, User} from '@element-plus/icons-vue'
+import {reactive} from "vue";
+import {ElMessage} from "element-plus";
+import {post} from "@/net";
+import router from "@/router";
+
+const form=reactive({
+    username:'',
+    password:'',
+    remember: false
+})
+
+const login=()=>{
+    if(!form.username||!form.password){
+        ElMessage.warning('请填写用户名和密码！')
+    }else{
+        post('/api/auth/login',{
+            username:form.username,
+            password:form.password,
+            remember:form.remember
+        }, (message)=>{
+            ElMessage.success(message)
+            router.push('/index')
+        })
+    }
+}
 </script>
 
 <style scoped>
