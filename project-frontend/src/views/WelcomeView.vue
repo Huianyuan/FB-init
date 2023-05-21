@@ -15,9 +15,11 @@
             </div>
         </div>
         <!--右边栏登录注册-->
-        <div style="width: 30vw;background-color: #ffffff">
+        <div style="width: 30vw;background-color: #ffffff;z-index: 1" >
             <!--登录路由-->
-            <router-view/>
+            <transition name="el-fade-in-linear">
+                <router-view/>
+            </transition>
         </div>
     </div>
 </template>

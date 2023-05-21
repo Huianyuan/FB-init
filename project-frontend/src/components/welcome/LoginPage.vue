@@ -35,7 +35,7 @@
             <span style="color: grey;font-size: 13px">没有账号</span>
         </el-divider>
         <div>
-            <el-button style="width: 200px" type="warning" plain>注册账号</el-button>
+            <el-button @click="router.push('/register')" style="width: 200px" type="warning" plain>注册账号</el-button>
         </div>
     </div>
 </template>
@@ -47,12 +47,14 @@ import {ElMessage} from "element-plus";
 import {post} from "@/net";
 import router from "@/router";
 
+// 登录表单
 const form=reactive({
     username:'',
     password:'',
     remember: false
 })
 
+// 登录
 const login=()=>{
     if(!form.username||!form.password){
         ElMessage.warning('请填写用户名和密码！')
@@ -67,6 +69,12 @@ const login=()=>{
         })
     }
 }
+
+//注册
+// const register=()=>{
+//
+//     router.push('/register')
+// }
 </script>
 
 <style scoped>

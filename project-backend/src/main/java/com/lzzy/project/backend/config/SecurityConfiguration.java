@@ -16,12 +16,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
+import javax.sql.DataSource;
 import java.io.IOException;
 
 /**
@@ -36,8 +39,16 @@ public class SecurityConfiguration {
     @Resource
     AuthorizeService authorizeService;
 
+    @Resource
+    DataSource dataSource;
+
+    /*
+     * remember过期时间
+     */
+    public static final int REMEMBER_TIME=3600*24*3;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeHttpRequests()
                 .anyRequest().authenticated()
@@ -51,6 +62,11 @@ public class SecurityConfiguration {
                 .logoutUrl("/api/auth/logout")
                 .logoutSuccessHandler(this::onAuthenticationSuccess)
                 .and()
+                .rememberMe()
+                .rememberMeParameter("remember")
+                .tokenRepository(repository)
+                .tokenValiditySeconds(REMEMBER_TIME)
+                .and()
                 .csrf()
                 .disable()
                 .cors()
@@ -60,6 +76,18 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(this::onAuthenticationFailure)
                 .and()
                 .build();
+    }
+
+    /*
+     * rememberme功能
+     */
+    @Bean
+    public PersistentTokenRepository tokenRepository() {
+        JdbcTokenRepositoryImpl jdbcTokenRepository=new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        //首次启项目需要改为true，创建登录状态信息的记录表
+        jdbcTokenRepository.setCreateTableOnStartup(false);
+        return jdbcTokenRepository;
     }
 
     /*
