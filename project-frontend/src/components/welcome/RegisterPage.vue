@@ -5,9 +5,9 @@
             <div style="font-size: 13px;color: grey">欢迎注册</div>
         </div>
         <div style="margin-top: 50px;margin-left: 40px;margin-right: 40px">
-            <el-form :model="form" :rules="rules" @validate="onValidate">
+            <el-form :model="form" :rules="rules" @validate="onValidate" ref="formRef">
                 <el-form-item prop="username">
-                    <el-input v-model="form.username" type="text" placeholder="用户名">
+                    <el-input v-model="form.username" :maxlength="8" type="text" placeholder="用户名">
                         <template #prefix>
                             <el-icon>
                                 <User/>
@@ -16,7 +16,7 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input v-model="form.password" type="password" placeholder="密码"
+                    <el-input v-model="form.password" :maxlength="16" type="password" placeholder="密码"
                               style="margin-top: 10px">
                         <template #prefix>
                             <el-icon>
@@ -48,7 +48,7 @@
                 <el-form-item prop="code">
                     <el-row :gutter="10">
                         <el-col :span="15">
-                            <el-input v-model="form.code" type="text" placeholder="请输入验证码">
+                            <el-input v-model="form.code" :maxlength="6" type="text" placeholder="请输入验证码">
                                 <template #prefix>
                                     <el-icon>
                                         <EditPen/>
@@ -57,14 +57,16 @@
                             </el-input>
                         </el-col>
                         <el-col :span="9" style="margin-right: auto">
-                            <el-button style="width: 100%" type="success" :disabled="!isEmailValid">获取验证码</el-button>
+                            <el-button style="width: 100%" type="success" :disabled="!isEmailValid||coldtime>0"
+                                       @click="validEmailAddress">{{coldtime>0?'请稍后'+coldtime+'秒':'获取验证码'}}
+                            </el-button>
                         </el-col>
                     </el-row>
                 </el-form-item>
             </el-form>
         </div>
         <div style="margin-top: 50px">
-            <el-button style="width: 200px" type="warning" plain>立即注册</el-button>
+            <el-button style="width: 200px" type="warning" plain @click="register">立即注册</el-button>
         </div>
         <div style="margin-top: 20px;line-height: 13px;font-size: 14px">
             <span style="color: grey">已有账号？</span>
@@ -78,6 +80,8 @@
 import {EditPen, Lock, Message, User} from "@element-plus/icons-vue";
 import router from "@/router";
 import {reactive, ref} from "vue";
+import {ElMessage} from "element-plus";
+import {post} from "@/net";
 
 const validateUsername = (rule, value, callback) => {
     if (value === '') {
@@ -124,18 +128,45 @@ const rules = {
     ],
     code: [
         {required: true, message: "请输入验证码", trigger: ['blur', 'change']},
-        {min: 4, max: 4, message: "验证码长度应为4位", trigger: ['blur', 'change']}
+        {min: 6, max: 6, message: "验证码长度应为6位", trigger: ['blur', 'change']}
     ]
 }
-
+const coldtime=ref(0)
 const isEmailValid = ref(false)
-
-//邮箱表单项被校验后触发（绑定在验证码
+const formRef = ref()
+//邮箱表单项被校验后触发（绑定在验证码）
 const onValidate = (prop, isValid) => {
-    if(prop==='email')
+    if (prop === 'email')
         isEmailValid.value = isValid
 }
 
+const register = () => {
+    formRef.value.validate((valid) => {
+        if (valid) {
+            post('/api/auth/register', {
+                username: form.username,
+                password: form.password,
+                email: form.email,
+                code: form.code
+            }, (message) => {
+                ElMessage.success(message)
+                router.push('/')
+            })
+        } else {
+            ElMessage.warning('请完整输入完整表单内容！')
+        }
+    })
+}
+
+const validEmailAddress = () => {
+    post('/api/auth/valid-email', {
+        email: form.email
+    }, (message) => {
+        ElMessage.success(message)
+        coldtime.value=60
+        setInterval(() => coldtime.value--,1000)
+    })
+}
 </script>
 
 <style scoped>

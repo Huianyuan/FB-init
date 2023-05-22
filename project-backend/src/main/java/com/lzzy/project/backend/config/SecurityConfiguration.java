@@ -51,6 +51,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeHttpRequests()
+                .requestMatchers("/api/auth/**").permitAll()//登录校验接口放行
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -79,7 +80,7 @@ public class SecurityConfiguration {
     }
 
     /*
-     * rememberme功能
+     * remember功能
      */
     @Bean
     public PersistentTokenRepository tokenRepository() {
@@ -96,6 +97,7 @@ public class SecurityConfiguration {
     private CorsConfigurationSource corsConfigurationSource(){
         CorsConfiguration cors=new CorsConfiguration();
         cors.addAllowedOriginPattern("http://127.0.0.1:5173");//前端服务器地址
+        cors.addAllowedOriginPattern("http://localhost:5173");//前端服务器地址
         cors.setAllowCredentials(true);//携带cookie
         cors.addAllowedHeader("*");
         cors.addAllowedMethod("*");

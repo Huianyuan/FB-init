@@ -9,4 +9,21 @@ spring:
     username: root
     password: root
 
-
+  #注册验证码所需邮箱
+  mail:
+    host: smtp.163.com
+    username: fb_init@163.com
+    password: OTCTYEZNNYSVFHVE
+    port: 465
+    properties:
+      from: fb_init@163.com
+      mail:
+        smtp:
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+  data:
+    # redis 配置
+    redis:
+      port: 6379
+      host: localhost
+      database: 1
