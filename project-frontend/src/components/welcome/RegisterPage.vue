@@ -123,7 +123,7 @@ const rules = {
         {validator: validatePassword, trigger: ['blur', 'change']},
     ],
     email: [
-        {required: true, message: '请输入密码', trigger: ['blur', 'change']},
+        {required: true, message: '请输入电子邮件', trigger: ['blur', 'change']},
         {type: 'email', message: '请输入合法的电子邮件地址', trigger: ['blur', 'change']}
     ],
     code: [
