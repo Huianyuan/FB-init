@@ -17,9 +17,11 @@
         <!--右边栏登录注册-->
         <div style="width: 30vw;background-color: #ffffff;z-index: 1" >
             <!--登录路由-->
-            <transition name="el-fade-in-linear">
-                <router-view/>
-            </transition>
+            <router-view v-slot="{Component}">
+                <transition name="el-fade-in-linear" mode="out-in">
+                    <component :is="Component" style="height:100%"/>
+                </transition>
+            </router-view>
         </div>
     </div>
 </template>
