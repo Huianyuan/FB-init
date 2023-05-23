@@ -58,15 +58,8 @@ public class AuthorizeServiceImpl implements AuthorizeService{
     }
 
     @Override
-    public String sendValidEmail(String email, String sessionID) {
-
-        //判断当前邮箱地址是否在redis，存在则发送消息，不存在则存储当前地址，设置1分钟过期时间
-        if(Boolean.TRUE.equals(redisTemplate.hasKey(email))){
-            return "请勿重复获取验证码，请1分钟后重试";
-        }
-        redisTemplate.opsForValue().set("email", String.valueOf(email), 1, TimeUnit.MINUTES);
-
-        String key = "email:" + sessionID + ":" + email;
+    public String sendValidEmail(String email, String sessionID,boolean hasAccount) {
+        String key = "email:" + sessionID + ":" + email+ ":" +hasAccount;
         // 4.过期时间3分钟，如果此时重新要求发邮件，只要剩余时间低于2分钟，就可以重新发送一次，重复此流程
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             Long expire = Optional.ofNullable(redisTemplate.getExpire(key, TimeUnit.SECONDS)).orElse(0L);
@@ -74,9 +67,14 @@ public class AuthorizeServiceImpl implements AuthorizeService{
                 return "请求频繁，请稍后再试。";
             }
         }
-        if (mapper.findAccountByNameOrEmail(email) != null) {
-            return "此邮箱已被其他用户使用，请换新邮箱重试！";
+        Account account = mapper.findAccountByNameOrEmail(email);
+        if (hasAccount && account == null) {
+            return "此邮箱不存在，请确认你的邮箱地址是否正确";
         }
+        if(!hasAccount && account!=null){
+            return "此邮箱已经被注册，请换邮箱注册";
+        }
+
         // 1.生成对应的验证码
         Random random = new Random();
         int code = random.nextInt(899999) + 100000;
@@ -88,7 +86,8 @@ public class AuthorizeServiceImpl implements AuthorizeService{
         message.setText("您的验证码是：" + code);
         // 2，发送验证码到指定邮箱
         try {
-            mailSender.send(message);
+            // todo：记得开启邮件发送功能，这里方便测试，直接从redis中读取验证码
+            //  mailSender.send(message);
             // 3，把邮箱和对应的验证码直接放到Redis里面
             redisTemplate.opsForValue().set(key, String.valueOf(code), 3, TimeUnit.MINUTES);
             return null;
@@ -100,12 +99,13 @@ public class AuthorizeServiceImpl implements AuthorizeService{
 
     @Override
     public String validateAndRegister(String username, String password, String email, String code, String sessionID) {
-        String key = "email:" + sessionID + ":" + email;
+        String key = "email:" + sessionID + ":" + email+":false";
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             String s = redisTemplate.opsForValue().get(key);
             if (s == null) return "验证码失效，请重新请求";
             if (s.equals(code)) {
                 password = encoder.encode(password);
+                redisTemplate.delete(key);
                 if(mapper.createAccount(username, password, email)>0){
                     return null;
                 }else{
@@ -117,5 +117,28 @@ public class AuthorizeServiceImpl implements AuthorizeService{
         } else {
             return "请先请求一封验证邮件";
         }
+    }
+
+    @Override
+    public String validateOnly(String email, String code, String sessionID) {
+        String key = "email:" + sessionID + ":" + email+":true";
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
+            String s = redisTemplate.opsForValue().get(key);
+            if (s == null) return "验证码失效，请重新请求";
+            if (s.equals(code)) {
+                redisTemplate.delete(key);
+                return null;
+            } else {
+                return "验证码错误，请重新请求";
+            }
+        } else {
+            return "请先请求一封验证邮件";
+        }
+    }
+
+    @Override
+    public boolean resetPassword(String password, String email) {
+        password=encoder.encode(password);
+        return mapper.resetPasswordPyEmail(password,email)>0;
     }
 }

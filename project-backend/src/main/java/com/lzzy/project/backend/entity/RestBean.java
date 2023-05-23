@@ -20,18 +20,18 @@ public class RestBean<T> {
     }
 
     public static <T> RestBean<T> success(){
-        return new RestBean(200, true, null);
+        return new RestBean<>(200, true, null);
     }
 
     public static <T> RestBean<T> success(T data){
-        return new RestBean(200, true, data);
+        return new RestBean<>(200, true, data);
     }
 
     public static <T> RestBean<T> failure(int status){
-        return new RestBean(status, false, null);
+        return new RestBean<>(status, false, null);
     }
 
     public static <T> RestBean<T> failure(int status,T data){
-        return new RestBean(status, false, data);
+        return new RestBean<>(status, false, data);
     }
 }
