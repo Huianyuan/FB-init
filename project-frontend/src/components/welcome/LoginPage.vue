@@ -44,8 +44,9 @@
 import {Lock, User} from '@element-plus/icons-vue'
 import {reactive} from "vue";
 import {ElMessage} from "element-plus";
-import {post} from "@/net";
+import {get, post} from "@/net";
 import router from "@/router";
+import {useCounterStore} from "@/stores/counter";
 
 // 登录表单
 const form=reactive({
@@ -53,7 +54,7 @@ const form=reactive({
     password:'',
     remember: false
 })
-
+const store = useCounterStore();
 // 登录
 const login=()=>{
     if(!form.username||!form.password){
@@ -65,7 +66,12 @@ const login=()=>{
             remember:form.remember
         }, (message)=>{
             ElMessage.success(message)
-            router.push('/index')
+            get('/api/user/me', (message) => {
+                store.auth.user = message
+                router.push("/index") //判断状态为已登录，则直接跳转到index面页
+            }, () => {
+                store.auth.user = null
+            })
         })
     }
 }

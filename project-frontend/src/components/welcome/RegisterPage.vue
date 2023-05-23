@@ -159,12 +159,15 @@ const register = () => {
 }
 
 const validEmailAddress = () => {
+    coldtime.value=60
     post('/api/auth/valid-register-email', {
         email: form.email
     }, (message) => {
         ElMessage.success(message)
-        coldtime.value=60
         setInterval(() => coldtime.value--,1000)
+    },(message)=> {
+        ElMessage.success(message)
+        coldtime.value=0
     })
 }
 </script>

@@ -1,6 +1,6 @@
 package com.lzzy.project.backend.service.impl;
 
-import com.lzzy.project.backend.entity.Account;
+import com.lzzy.project.backend.entity.auth.Account;
 import com.lzzy.project.backend.mapper.UserMapper;
 import com.lzzy.project.backend.service.AuthorizeService;
 import jakarta.annotation.Resource;

@@ -12,11 +12,11 @@ spring:
   #注册验证码所需邮箱
   mail:
     host: smtp.163.com
-    username: fb_init@163.com
-    password: OTCTYEZNNYSVFHVE
+    username: 邮箱账号（对应上面163）
+    password: 授权码
     port: 465
     properties:
-      from: fb_init@163.com
+      from: 邮箱账号
       mail:
         smtp:
           socketFactory:

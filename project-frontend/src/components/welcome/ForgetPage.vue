@@ -83,7 +83,7 @@
                     </el-form>
                 </div>
                 <div style="margin-top: 50px">
-                    <el-button @click="doReset()" style="width: 200px" type="danger" plain >立即重置密码</el-button>
+                    <el-button @click="doReset()" style="width: 200px" type="danger" plain>立即重置密码</el-button>
                 </div>
             </div>
         </transition>
@@ -143,12 +143,15 @@ const onValidate = (prop, isValid) => {
 }
 
 const validEmailAddress = () => {
+    coldtime.value = 60
     post('/api/auth/valid-reset-email', {
         email: form.email
     }, (message) => {
         ElMessage.success(message)
-        coldtime.value = 60
         setInterval(() => coldtime.value--, 1000)
+    }, (message) => {
+        ElMessage.success(message)
+        coldtime.value = 0
     })
 }
 

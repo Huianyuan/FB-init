@@ -86,7 +86,7 @@ public class SecurityConfiguration {
     public PersistentTokenRepository tokenRepository() {
         JdbcTokenRepositoryImpl jdbcTokenRepository=new JdbcTokenRepositoryImpl();
         jdbcTokenRepository.setDataSource(dataSource);
-        //首次启项目需要改为true，创建登录状态信息的记录表
+        //todo：首次启项目需要改为true，在数据库中创建登录状态信息记录表
         jdbcTokenRepository.setCreateTableOnStartup(false);
         return jdbcTokenRepository;
     }

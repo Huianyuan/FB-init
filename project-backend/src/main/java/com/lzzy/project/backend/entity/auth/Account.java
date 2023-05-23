@@ -1,4 +1,4 @@
-package com.lzzy.project.backend.entity;
+package com.lzzy.project.backend.entity.auth;
 
 import lombok.Data;
 
